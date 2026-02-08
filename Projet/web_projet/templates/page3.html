@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Ikea</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .chart-container { width: 80%; margin: auto; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Dashboard Ikea</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Présentation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/page1">Messages commerciaux</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/page2">nombre de review</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/page3">ranking</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1 class="text-center">Ranking Moyen par Catégorie Principale</h1>
+        <canvas id="rankingChart"></canvas>
+        <hr>
+        <div class="text-center">
+            <a href="/">Retour à l'accueil</a>
+        </div>
+    </div>
+    <script>
+        const ctx = document.getElementById('rankingChart').getContext('2d');
+        const rankingChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ labels|tojson }},
+                datasets: [{
+                    label: 'Ranking Moyen (sur 5)',
+                    data: {{ data|tojson }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Ranking moyen des produits par catégorie principale'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Ikea</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        #chart-container { width: 80vw; max-width: 900px; margin: auto; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Dashboard Ikea</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Présentation</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/page1">Messages commerciaux</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/page2">nombre de review</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/page3">ranking</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1>Statistiques des messages commerciaux par catégorie</h1>
+        <div id="chart-container">
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+    <script>
+
+        const categories = {{ categories|tojson }};
+        const message_types = {{ message_types|tojson }};
+        const data_counts = {{ data_counts|tojson }};
+
+        // Couleurs: Nouveau (bleu), Prix le plus bas (orange), Prix le plus bas & Nouveau (mélange)
+        const colors = [
+            '#4e79a7', // Nouveau
+            '#bfae4e', // Prix le plus bas & Nouveau (mélange jaune/bleu)
+            '#f28e2b', // Prix le plus bas
+        ];
+
+        const datasets = message_types.map((msg, idx) => ({
+            label: msg,
+            data: data_counts[idx],
+            backgroundColor: colors[idx],
+            stack: 'Stack 0',
+        }));
+
+        const ctx = document.getElementById('barChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: {
+                        display: true,
+                        text: 'Nombre de produits par catégorie et message commercial'
+                    }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

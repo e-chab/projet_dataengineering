@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Dashboard Ikea</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Dashboard Ikea</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Présentation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/page1">Messages commerciaux</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/page2">nombre de review</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/page3">ranking</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h1 class="text-center bar-title-small">Product Count & Review Count by 2ème Catégorie</h1>
+        <canvas id="categoryChart"></canvas>
+        <hr>
+        <!-- Ligne 1 : camembert produits par sous-catégorie (gauche) et reviews par sous-catégorie (droite) -->
+        <form method="get" class="mb-3" id="firstForm">
+            <div>
+                <label for="first_category">Choisissez une catégorie principale :</label><br>
+                <select name="first_category" id="first_category" onchange="updateUrlParams('first_category', this.value)">
+                    <option value="">-- Sélectionnez --</option>
+                    {% for cat in firsts %}
+                        <option value="{{ cat }}" {% if cat == selected_first %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+        <div class="d-flex flex-row justify-content-center align-items-start mt-4">
+            <div style="flex:1; min-width:320px;">
+                {% if pie2_labels and pie2_data %}
+                <h2 class="text-left pie-title-small">Répartition par sous-catégorie ({{ selected_first }})</h2>
+                <div class="pie-chart-small mt-3 text-left">
+                    <canvas id="pie2Chart"></canvas>
+                </div>
+                {% endif %}
+            </div>
+            <div style="flex:1; min-width:320px; margin-left:40px;">
+                {% if pie2_labels and pie2_reviews %}
+                <h2 class="text-left pie-title-small">Répartition du nombre de reviews par sous-catégorie ({{ selected_first }})</h2>
+                <div class="pie-chart-small mt-3 text-left">
+                    <canvas id="pie2ReviewChart"></canvas>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Ligne 2 : barre nav 2, camembert produits par sous-sous-catégorie (gauche), reviews par sous-sous-catégorie (droite) -->
+        <form method="get" class="mb-3" id="secondForm">
+            <div>
+                <label for="second_category">Choisissez une sous-catégorie :</label><br>
+                <select name="second_category" id="second_category" onchange="updateUrlParams('second_category', this.value)">
+                    <option value="">-- Sélectionnez --</option>
+                    {% for cat in seconds %}
+                        <option value="{{ cat }}" {% if cat == selected_second %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+        <div class="d-flex flex-row justify-content-center align-items-start mt-4">
+            <div style="flex:1; min-width:320px;">
+                {% if pie_labels and pie_data %}
+                <h2 class="text-left pie-title-small">Répartition par sous-sous-catégorie ({{ selected_second }})</h2>
+                <div class="pie-chart-small mt-3 text-left">
+                    <canvas id="pieChart"></canvas>
+                </div>
+                {% endif %}
+            </div>
+            <div style="flex:1; min-width:320px; margin-left:40px;">
+                {% if pie_labels and pie_reviews %}
+                <h2 class="text-left pie-title-small">Répartition du nombre de reviews par sous-sous-catégorie ({{ selected_second }})</h2>
+                <div class="pie-chart-small mt-3 text-left">
+                    <canvas id="pieReviewChart"></canvas>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .chart-container { width: 80%; margin: auto; }
+        .pie-chart-small { width: 60% !important; max-width: 550px; margin: 0 auto; }
+        .pie-title-small { font-size: 1rem; }
+        .bar-title-small { font-size: 1.2rem; }
+    </style>
+    <script>
+        // Fonction pour mettre à jour les paramètres d'URL sans perdre l'autre sélection
+        function updateUrlParams(param, value) {
+            const url = new URL(window.location.href);
+            if (param === 'first_category') {
+                // Lorsqu'on change la catégorie principale, on réinitialise la sous-catégorie
+                url.searchParams.set('first_category', value);
+                url.searchParams.delete('second_category');
+            } else {
+                if (value) {
+                    url.searchParams.set(param, value);
+                } else {
+                    url.searchParams.delete(param);
+                }
+            }
+            window.location.href = url.pathname + url.search;
+        }
+        var ctx = document.getElementById('categoryChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ labels|tojson }},
+                datasets: [
+                    {
+                        label: '# of Products',
+                        data: {{ data|tojson }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Total Reviews',
+                        data: {{ reviews|tojson }},
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1',
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Nombre d\'articles'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Nombre de reviews'
+                        }
+                    }
+                }
+            }
+        });
+        {% if pie2_labels and pie2_data %}
+        var pie2Ctx = document.getElementById('pie2Chart').getContext('2d');
+        var pie2Chart = new Chart(pie2Ctx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie2_labels|tojson }},
+                datasets: [{
+                    data: {{ pie2_data|tojson }},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+        {% endif %}
+        {% if pie_labels and pie_data %}
+        var pieCtx = document.getElementById('pieChart').getContext('2d');
+        var pieChart = new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels|tojson }},
+                datasets: [{
+                    data: {{ pie_data|tojson }},
+                    backgroundColor: [
+                        'rgba(0, 200, 83, 0.2)',
+                        'rgba(255, 87, 34, 0.2)',
+                        'rgba(63, 81, 181, 0.2)',
+                        'rgba(255, 193, 7, 0.2)',
+                        'rgba(233, 30, 99, 0.2)',
+                        'rgba(0, 188, 212, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 200, 83, 1)',
+                        'rgba(255, 87, 34, 1)',
+                        'rgba(63, 81, 181, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(233, 30, 99, 1)',
+                        'rgba(0, 188, 212, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+        {% endif %}
+
+        // NOUVEAUX CAMEMBERTS : Répartition du nombre de reviews
+        {% if pie2_labels and pie2_reviews %}
+        var pie2ReviewCtx = document.getElementById('pie2ReviewChart').getContext('2d');
+        var pie2ReviewChart = new Chart(pie2ReviewCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie2_labels|tojson }},
+                datasets: [{
+                    data: {{ pie2_reviews|tojson }},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+        {% endif %}
+        {% if pie_labels and pie_reviews %}
+        var pieReviewCtx = document.getElementById('pieReviewChart').getContext('2d');
+        var pieReviewChart = new Chart(pieReviewCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ pie_labels|tojson }},
+                datasets: [{
+                    data: {{ pie_reviews|tojson }},
+                    backgroundColor: [
+                        'rgba(0, 200, 83, 0.2)',
+                        'rgba(255, 87, 34, 0.2)',
+                        'rgba(63, 81, 181, 0.2)',
+                        'rgba(255, 193, 7, 0.2)',
+                        'rgba(233, 30, 99, 0.2)',
+                        'rgba(0, 188, 212, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 200, 83, 1)',
+                        'rgba(255, 87, 34, 1)',
+                        'rgba(63, 81, 181, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(233, 30, 99, 1)',
+                        'rgba(0, 188, 212, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

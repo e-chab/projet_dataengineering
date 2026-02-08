@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques des messages commerciaux</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        #chart-container { width: 80vw; max-width: 900px; margin: auto; }
+    </style>
+</head>
+<body>
+    <h1>Statistiques des messages commerciaux par catégorie</h1>
+    <div id="chart-container">
+        <canvas id="barChart"></canvas>
+    </div>
+    <script>
+        // Les données doivent être injectées depuis Flask
+        const categories = {{ categories|tojson }};
+        const message_types = {{ message_types|tojson }};
+        const data_counts = {{ data_counts|tojson }};
+
+        const datasets = message_types.map((msg, idx) => ({
+            label: msg,
+            data: data_counts[idx],
+            backgroundColor: [
+                '#4e79a7', // Nouveau
+                '#f28e2b', // Prix le plus bas
+                '#e15759', // Autre
+                '#76b7b2', // Autre
+                '#59a14f', // Autre
+            ][idx] || '#aaa',
+            stack: 'Stack 0',
+        }));
+
+        const ctx = document.getElementById('barChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: {
+                        display: true,
+                        text: 'Nombre de produits par catégorie et message commercial'
+                    }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
