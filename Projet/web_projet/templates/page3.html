@@ -6,8 +6,46 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body { font-family: sans-serif; margin: 40px; }
-        .chart-container { width: 80%; margin: auto; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #181a1b;
+            color: #e0e0e0;
+        }
+        .navbar {
+            background: #23272f !important;
+        }
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: #e0e0e0 !important;
+        }
+        .navbar .nav-link.active, .navbar .nav-link:hover {
+            color: #00bcd4 !important;
+        }
+        .container {
+            background: #23272f;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            padding: 32px 24px;
+            margin-top: 32px;
+        }
+        h1, h2, h3 {
+            color: #00bcd4;
+        }
+        .chart-container {
+            width: 80%;
+            margin: auto;
+            background: #22242a;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .btn-primary {
+            background: #00bcd4;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #0097a7;
+        }
     </style>
 </head>
 <body>
@@ -15,33 +53,23 @@
         <a class="navbar-brand" href="/">Dashboard Ikea</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Présentation</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page1">Messages commerciaux</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page2">nombre de review</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/page3">ranking</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/page3">Ranking</a></li>
+                
+                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
             </ul>
         </div>
     </nav>
     <div class="container mt-4">
         <h1 class="text-center">Ranking Moyen par Catégorie Principale</h1>
         <canvas id="rankingChart"></canvas>
-        <hr>
-
-        <h1 class="text-center mt-5">Ranking Moyen par Seconde Catégorie</h1>
-        <canvas id="rankingSecondChart"></canvas>
-
-        <hr>
-        <div class="text-center">
-            <a href="/">Retour à l'accueil</a>
-        </div>
+                <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
+                    <h5>Comment interpréter ce graphique&nbsp;?</h5>
+                    <p>Ce graphique à barres présente la note moyenne (sur 5) attribuée aux produits de chaque catégorie principale. Une barre plus haute indique une meilleure satisfaction client pour la catégorie concernée. Utilisez-le pour repérer les catégories les mieux notées et celles à améliorer.</p>
+                </div>
+        <!-- plus de lien retour, tout est dans la barre de navigation -->
     </div>
     <script>
         const ctx = document.getElementById('rankingChart').getContext('2d');
@@ -70,36 +98,6 @@
                     title: {
                         display: true,
                         text: 'Ranking moyen des produits par catégorie principale'
-                    }
-                }
-            }
-        });
-        const ctxSecond = document.getElementById('rankingSecondChart').getContext('2d');
-        new Chart(ctxSecond, {
-            type: 'bar',
-            data: {
-                labels: {{ labels_second|tojson }},
-                datasets: [{
-                    label: 'Ranking Moyen (sur 5) par seconde catégorie',
-                    data: {{ data_second|tojson }},
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 5
-                    }
-                },
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    title: {
-                        display: true,
-                        text: 'Ranking moyen des produits par seconde catégorie'
                     }
                 }
             }

@@ -5,9 +5,46 @@
     <title>Dashboard Ikea</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .dashboard-title { font-size: 2.5rem; font-weight: bold; margin-top: 80px; }
-        .dashboard-author { font-size: 1rem; color: #888; margin-top: 20px; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #181a1b;
+            color: #e0e0e0;
+        }
+        .navbar {
+            background: #23272f !important;
+        }
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: #e0e0e0 !important;
+        }
+        .navbar .nav-link.active, .navbar .nav-link:hover {
+            color: #00bcd4 !important;
+        }
+        .container {
+            background: #23272f;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            padding: 32px 24px;
+            margin-top: 32px;
+        }
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-top: 80px;
+            color: #00bcd4;
+        }
+        .dashboard-author {
+            font-size: 1rem;
+            color: #b0b0b0;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background: #00bcd4;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #0097a7;
+        }
     </style>
 </head>
 <body>
@@ -15,24 +52,12 @@
         <a class="navbar-brand" href="/">Dashboard Ikea</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">Présentation</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page1">Messages commerciaux</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page2">nombre de review</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page3">ranking</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page5">Ranking moyen secondary</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/search_es">Recherche commentaires</a>
-                </li>
+                <li class="nav-item active"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
+                
+                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
             </ul>
         </div>
     </nav>

@@ -6,30 +6,76 @@
     <title>Dashboard Ikea</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #181a1b;
+            color: #e0e0e0;
+        }
+        .navbar {
+            background: #23272f !important;
+        }
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: #e0e0e0 !important;
+        }
+        .navbar .nav-link.active, .navbar .nav-link:hover {
+            color: #00bcd4 !important;
+        }
+        .container {
+            background: #23272f;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            padding: 32px 24px;
+            margin-top: 32px;
+        }
+        h1, h2, h3 {
+            color: #00bcd4;
+        }
+        .chart-container {
+            width: 80%;
+            margin: auto;
+            background: #22242a;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .pie-chart-small {
+            background: #22242a;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .btn-primary {
+            background: #00bcd4;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #0097a7;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/">Dashboard Ikea</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Présentation</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page1">Messages commerciaux</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/page2">nombre de review</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page3">ranking</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
+                
+                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
             </ul>
         </div>
     </nav>
     <div class="container mt-4">
         <h1 class="text-center bar-title-small">Product Count & Review Count by 2ème Catégorie</h1>
         <canvas id="categoryChart"></canvas>
+                <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
+                    <h5>Comment interpréter ce graphique&nbsp;?</h5>
+                    <p>Le graphique à barres montre le nombre de produits et le nombre total de reviews pour chaque sous-catégorie principale. Une barre haute indique une catégorie populaire ou très commentée. Cela permet d’identifier les catégories les plus représentées et celles qui génèrent le plus d’avis clients.</p>
+                </div>
         <hr>
         <!-- Ligne 1 : camembert produits par sous-catégorie (gauche) et reviews par sous-catégorie (droite) -->
         <form method="get" class="mb-3" id="firstForm">
@@ -93,6 +139,17 @@
             </div>
         </div>
     </div>
+        <!-- Section : Comment interpréter ces graphiques -->
+        <div class="mt-4" style="background:#23272f; border-radius:10px; padding:18px; color:#b0b0b0;">
+            <h5>Comment interpréter ces graphiques&nbsp;?</h5>
+            <ul>
+                <li>Chaque camembert représente la répartition des produits ou des reviews selon la catégorie sélectionnée.</li>
+                <li>Un secteur plus large indique une sous-catégorie (ou sous-sous-catégorie) plus représentée ou plus commentée.</li>
+                <li>Comparez la taille des secteurs pour identifier les catégories dominantes ou sous-représentées.</li>
+                <li>Utilisez la sélection pour explorer la granularité des données par niveau de catégorie.</li>
+            </ul>
+            <p class="mb-0">Ces graphiques permettent de visualiser rapidement la diversité et la popularité des produits ainsi que l’engagement des clients par catégorie.</p>
+        </div>
     <style>
         body { font-family: sans-serif; margin: 40px; }
         .chart-container { width: 80%; margin: auto; }

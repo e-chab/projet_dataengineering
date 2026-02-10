@@ -6,8 +6,47 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        #chart-container { width: 80vw; max-width: 900px; margin: auto; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #181a1b;
+            color: #e0e0e0;
+        }
+        .navbar {
+            background: #23272f !important;
+        }
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: #e0e0e0 !important;
+        }
+        .navbar .nav-link.active, .navbar .nav-link:hover {
+            color: #00bcd4 !important;
+        }
+        .container {
+            background: #23272f;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            padding: 32px 24px;
+            margin-top: 32px;
+        }
+        h1, h2, h3 {
+            color: #00bcd4;
+        }
+        #chart-container {
+            width: 80vw;
+            max-width: 900px;
+            margin: auto;
+            background: #22242a;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .btn-primary {
+            background: #00bcd4;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #0097a7;
+        }
     </style>
 </head>
 <body>
@@ -15,18 +54,12 @@
         <a class="navbar-brand" href="/">Dashboard Ikea</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Présentation</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/page1">Messages commerciaux</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page2">nombre de review</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/page3">ranking</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
+                
+                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
             </ul>
         </div>
     </nav>
@@ -34,9 +67,17 @@
         <h1>Statistiques des messages commerciaux par catégorie</h1>
         <div id="chart-container">
             <canvas id="barChart"></canvas>
+                <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
+                    <h5>Comment interpréter ce graphique&nbsp;?</h5>
+                    <p>Ce graphique présente la répartition des types de messages commerciaux par catégorie de produits. Il permet de visualiser quelles catégories sont les plus ciblées par certains messages (ex : "Nouveau", "Réduction"). Cela aide à comprendre la stratégie commerciale selon les familles de produits.</p>
+                </div>
         </div>
         <div id="pie-chart-container" style="width: 50vw; max-width: 450px; margin: 40px auto;">
             <canvas id="pieChart"></canvas>
+            <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
+                <h5>Comment interpréter ce graphique&nbsp;?</h5>
+                <p>Ce camembert montre la répartition des différents pourcentages de promotions appliquées aux produits. Il permet de visualiser quelles remises sont les plus fréquentes et d’identifier les stratégies de réduction privilégiées par catégorie ou globalement.</p>
+            </div>
         </div>
     </div>
     <script>

@@ -183,49 +183,7 @@ def page3():
     labels = [res['_id'] for res in results]
     data = [res['avg_rating'] for res in results]
 
-    # Graphiques pour les secondary ratings (Elasticsearch)
-    secondary_rating_types = get_secondary_rating_types()
-    secondary_charts_data = {}
-
-    for rating_type in secondary_rating_types:
-        query = {
-            "size": 0,
-            "aggs": {
-                "categories": {
-                    "terms": {"field": "category_main.keyword", "size": 100},
-                    "aggs": {
-                        "ratings_nested": {
-                            "nested": {"path": "secondaryRatings"},
-                            "aggs": {
-                                "filtered": {
-                                    "filter": {"term": {"secondaryRatings.label.keyword": rating_type}},
-                                    "aggs": {
-                                        "avg_rating": {"avg": {"field": "secondaryRatings.ratingValue"}}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        try:
-            res = es.search(index="ikea_reviews", body=query)
-            buckets = res['aggregations']['categories']['buckets']
-            cat_labels = []
-            data_points = []
-            for bucket in buckets:
-                avg_rating_agg = bucket['ratings_nested']['filtered']['avg_rating']
-                if avg_rating_agg and avg_rating_agg.get('value') is not None:
-                    cat_labels.append(bucket['key'])
-                    data_points.append(avg_rating_agg['value'])
-            if cat_labels and data_points:
-                secondary_charts_data[rating_type] = {'labels': cat_labels, 'data': data_points}
-        except Exception as e:
-            print(f"Erreur Elasticsearch pour le rating '{rating_type}': {e}")
-
-    return render_template('page3.html', labels=labels, data=data,
-                           secondary_charts_data=secondary_charts_data)
+    return render_template('page3.html', labels=labels, data=data)
 
 
 def get_secondary_rating_types():

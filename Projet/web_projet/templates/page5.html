@@ -6,8 +6,54 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body { font-family: sans-serif; margin: 40px; }
-        .chart-container { width: 80%; margin: auto; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #181a1b;
+            color: #e0e0e0;
+        }
+        .navbar {
+            background: #23272f !important;
+        }
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: #e0e0e0 !important;
+        }
+        .navbar .nav-link.active, .navbar .nav-link:hover {
+            color: #00bcd4 !important;
+        }
+        .container {
+            background: #23272f;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            padding: 32px 24px;
+            margin-top: 32px;
+        }
+        h1, h2, h3 {
+            color: #00bcd4;
+        }
+        .chart-container {
+            width: 80%;
+            margin: auto;
+            background: #22242a;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .btn-primary {
+            background: #00bcd4;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #0097a7;
+        }
+        .alert-warning {
+            background: #33353b;
+            color: #ffeb3b;
+            border: none;
+        }
+        hr {
+            border-color: #444;
+        }
     </style>
 </head>
 <body>
@@ -17,10 +63,10 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Présentation</a></li>
                 <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page2">nombre de review</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page3">ranking</a></li>
-                <li class="nav-item"><a class="nav-link" href="/search_es">Recherche commentaires</a></li>
-                <li class="nav-item active"><a class="nav-link" href="/page5">Ranking moyen par secondary rating</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/page5">Ranking moyen secondary</a></li>
+                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
             </ul>
         </div>
     </nav>
@@ -30,15 +76,16 @@
         <div class="chart-container">
             <canvas id="secondaryAvgChart"></canvas>
         </div>
+        <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
+            <h5>Comment interpréter ce graphique&nbsp;?</h5>
+            <p>Ce graphique présente la moyenne des notes secondaires attribuées aux produits par type d'évaluation (ex : qualité, rapport qualité/prix, etc). Plus la barre est haute, plus la perception de ce critère est positive pour la catégorie concernée. Utilisez-le pour comparer les points forts et faibles perçus par les clients selon les critères secondaires.</p>
+        </div>
         {% if error_msg %}
         <div class="alert alert-warning mt-4 text-center">
             {{ error_msg }}
         </div>
         {% endif %}
-        <hr>
-        <div class="text-center">
-            <a href="/">Retour à l'accueil</a>
-        </div>
+        <!-- plus de lien retour, tout est dans la barre de navigation -->
     </div>
 
     <script>
