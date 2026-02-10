@@ -1,0 +1,16 @@
+{
+  "size": 0,
+  "aggs": {
+    "categories": {
+      "terms": { "field": "category_main.keyword", "size": 100 },
+      "aggs": {
+        "filtered_ratings": {
+          "filter": { "term": { "secondaryRatings.label.keyword": "Apparence" } },
+          "aggs": {
+            "avg_rating": { "avg": { "field": "secondaryRatings.ratingValue" } }
+          }
+        }
+      }
+    }
+  }
+}

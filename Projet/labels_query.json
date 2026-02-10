@@ -1,0 +1,11 @@
+{
+  "size": 0,
+  "aggs": {
+    "labels": {
+      "terms": {
+        "field": "secondaryRatings.label.keyword",
+        "size": 100
+      }
+    }
+  }
+}

@@ -10,7 +10,8 @@ WORKDIR /app
 # Copier les fichiers du projet
 COPY . .
 
-RUN pip install --no-cache-dir scrapy pymongo
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 # La commande pour lancer le spider ikea_retriever
 CMD ["scrapy", "crawl", "ikea"]

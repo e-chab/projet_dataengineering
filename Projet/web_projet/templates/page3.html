@@ -34,13 +34,18 @@
         <h1 class="text-center">Ranking Moyen par Catégorie Principale</h1>
         <canvas id="rankingChart"></canvas>
         <hr>
+
+        <h1 class="text-center mt-5">Ranking Moyen par Seconde Catégorie</h1>
+        <canvas id="rankingSecondChart"></canvas>
+
+        <hr>
         <div class="text-center">
             <a href="/">Retour à l'accueil</a>
         </div>
     </div>
     <script>
         const ctx = document.getElementById('rankingChart').getContext('2d');
-        const rankingChart = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: {{ labels|tojson }},
@@ -65,6 +70,36 @@
                     title: {
                         display: true,
                         text: 'Ranking moyen des produits par catégorie principale'
+                    }
+                }
+            }
+        });
+        const ctxSecond = document.getElementById('rankingSecondChart').getContext('2d');
+        new Chart(ctxSecond, {
+            type: 'bar',
+            data: {
+                labels: {{ labels_second|tojson }},
+                datasets: [{
+                    label: 'Ranking Moyen (sur 5) par seconde catégorie',
+                    data: {{ data_second|tojson }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Ranking moyen des produits par seconde catégorie'
                     }
                 }
             }

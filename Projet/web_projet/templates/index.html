@@ -35,26 +35,120 @@
         <div id="chart-container">
             <canvas id="barChart"></canvas>
         </div>
+        <div id="pie-chart-container" style="width: 50vw; max-width: 450px; margin: 40px auto;">
+            <canvas id="pieChart"></canvas>
+        </div>
     </div>
     <script>
 
         const categories = {{ categories|tojson }};
         const message_types = {{ message_types|tojson }};
         const data_counts = {{ data_counts|tojson }};
+        const combined_labels = {{ combined_labels|tojson }};
+        const combined_data_counts = {{ combined_data_counts|tojson }};
+        const reduction_labels = {{ reduction_labels|tojson }};
+        const reduction_data = {{ reduction_data|tojson }};
 
-        // Couleurs: Nouveau (bleu), Prix le plus bas (orange), Prix le plus bas & Nouveau (mélange)
-        const colors = [
-            '#4e79a7', // Nouveau
-            '#bfae4e', // Prix le plus bas & Nouveau (mélange jaune/bleu)
-            '#f28e2b', // Prix le plus bas
-        ];
+        // Génère une couleur aléatoire pastel
+        function randomColor() {
+            const hue = Math.floor(Math.random() * 360);
+            return `hsl(${hue}, 70%, 70%)`;
+        }
 
-        const datasets = message_types.map((msg, idx) => ({
-            label: msg,
-            data: data_counts[idx],
-            backgroundColor: colors[idx],
-            stack: 'Stack 0',
-        }));
+        // Associe chaque message à une couleur unique
+        const colorMap = {};
+        message_types.forEach(msg => {
+            colorMap[msg] = randomColor();
+        });
+        // Ajoute des couleurs pour les labels de réduction s'ils n'existent pas déjà
+        reduction_labels.forEach(label => {
+            if (!colorMap[label]) {
+                colorMap[label] = randomColor();
+            }
+        });
+
+        // Fonction pour mélanger deux couleurs (moyenne RGB)
+        function mixColors(color1, color2) {
+            function hslToRgb(h, s, l) {
+                s /= 100; l /= 100;
+                let c = (1 - Math.abs(2 * l - 1)) * s,
+                    x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+                    m = l - c/2, r=0, g=0, b=0;
+                if (0 <= h && h < 60) { r = c; g = x; b = 0; }
+                else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
+                else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+                else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+                else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+                else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+                return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+            }
+            function rgbToHsl(r, g, b) {
+                r /= 255; g /= 255; b /= 255;
+                let max = Math.max(r, g, b), min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+                if (max === min) { h = s = 0; }
+                else {
+                    let d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h *= 60;
+                }
+                return [h, s * 100, l * 100];
+            }
+            // Parse hsl string
+            function parseHSL(hsl) {
+                const [h, s, l] = hsl.match(/\d+/g).map(Number);
+                return [h, s, l];
+            }
+            const rgb1 = hslToRgb(...parseHSL(color1));
+            const rgb2 = hslToRgb(...parseHSL(color2));
+            const avg = [
+                Math.round((rgb1[0] + rgb2[0]) / 2),
+                Math.round((rgb1[1] + rgb2[1]) / 2),
+                Math.round((rgb1[2] + rgb2[2]) / 2)
+            ];
+            // Convert back to hsl for pastel effect
+            const [h, s, l] = rgbToHsl(...avg);
+            return `hsl(${Math.round(h)}, 70%, 70%)`;
+        }
+
+        // Prépare les datasets
+        let datasets = [];
+        // Pour chaque type de message simple
+        message_types.forEach((msg, idx) => {
+            // Affiche 'Réduction' en tant que label générique pour tous les produits avec un message 'Réduction XX%'
+            let label = msg;
+            if (msg === 'Réduction') {
+                label = 'Réduction';
+            }
+            datasets.push({
+                label: label,
+                data: data_counts[idx],
+                backgroundColor: colorMap[msg],
+                stack: 'Stack 0',
+            });
+        });
+
+        // Gestion des messages combinés (ex: "Nouveau & Prix baissé")
+        if (typeof combined_data_counts !== 'undefined' && typeof combined_labels !== 'undefined') {
+            combined_labels.forEach((label, i) => {
+                // label est du type 'msg1 & msg2' (ordre quelconque)
+                const [msg1, msg2] = label.split(' & ');
+                const color = mixColors(colorMap[msg1], colorMap[msg2]);
+                datasets.push({
+                    label: label,
+                    data: combined_data_counts[i],
+                    backgroundColor: color,
+                    stack: 'Stack 0',
+                    // Optionnel: custom order for stacking
+                    order: (message_types.indexOf(msg1) + message_types.indexOf(msg2)) / 2
+                });
+            });
+        }
 
         const ctx = document.getElementById('barChart').getContext('2d');
         new Chart(ctx, {
@@ -75,6 +169,31 @@
                 scales: {
                     x: { stacked: true },
                     y: { stacked: true, beginAtZero: true }
+                }
+            }
+        });
+
+        // Camembert pour les réductions
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: reduction_labels,
+                datasets: [{
+                    data: reduction_data,
+                    backgroundColor: reduction_labels.map(label => colorMap[label] || randomColor()),
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Répartition des promotions par pourcentage'
+                    }
                 }
             }
         });

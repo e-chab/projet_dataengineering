@@ -8,14 +8,49 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - data_network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - data_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:7.17.0
+  #   container_name: kibana
+  #   ports:
+  #     - "5601:5601"
+  #   depends_on:
+  #     - elasticsearch
+  #   networks:
+  #     - data_network
 
   scraping_service:
     build:
       context: ./scraping_projet
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
     environment:
       - MONGO_URI=mongodb://mongodb:27017/
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - data_network
 
   web_service:
     build: ./web_projet
@@ -23,8 +58,17 @@ services:
       - "5000:5000"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
       - mongodb
+      - elasticsearch
+    networks:
+      - data_network
 
 volumes:
   mongodb_data:
+  elasticsearch_data:
+
+networks:
+  data_network:
+    driver: bridge

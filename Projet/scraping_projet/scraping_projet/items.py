@@ -14,3 +14,4 @@ class IkeaProductItem(scrapy.Item):
     review_count = scrapy.Field()
     is_new = scrapy.Field()
     commercial_message = scrapy.Field()
+    reviews = scrapy.Field()
