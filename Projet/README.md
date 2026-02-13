@@ -107,6 +107,10 @@ Projet/
 3. **Accéder à l'application web**
    - Ouvrir un navigateur à l'adresse : http://localhost:5000
 
+4. **Il est possible de lancer l'application directement**
+   - Double cliquer sur run_dashboard.bat
+
+
 ## Auteurs
 
 Elise Chabrerie
