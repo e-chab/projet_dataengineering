@@ -25,11 +25,25 @@ class ElasticsearchPipeline:
                     "category_hierarchy": {"type": "keyword"},
                     "category_main": {"type": "keyword"},
                     "name": {"type": "keyword"},
+                    "description": {"type": "text"},
+                    "image_url": {"type": "keyword"},
+                    "price": {"type": "float"},
+                    "product_id": {"type": "keyword"},
+                    "commercial_message": {"type": "keyword"},
+                    "rating": {"type": "float"},
+                    "review_count": {"type": "integer"},
                     "reviews": {
                         "type": "nested",
                         "properties": {
+                            "id": {"type": "keyword"},
                             "text": {"type": "text"},
                             "comment": {"type": "text"},
+                            "title": {"type": "text"},
+                            "sourceCountryCode": {"type": "keyword"},
+                            "sourceLangCode": {"type": "keyword"},
+                            "submissionOn": {"type": "date"},
+                            "updatedOn": {"type": "date"},
+                            "isRecommended": {"type": "boolean"},
                             "primaryRating": {
                                 "properties": {
                                     "ratingRange": {"type": "integer"},
@@ -39,7 +53,9 @@ class ElasticsearchPipeline:
                             "secondaryRatings": {
                                 "type": "nested",
                                 "properties": {
+                                    "id": {"type": "keyword"},
                                     "label": {"type": "keyword"},
+                                    "ratingRange": {"type": "integer"},
                                     "ratingValue": {"type": "float"}
                                 }
                             }
@@ -57,35 +73,42 @@ class ElasticsearchPipeline:
         })
 
     def process_item(self, item, spider):
-            actions = []
-            category_hierarchy = item.get('category_hierarchy', [])
-            category_main = category_hierarchy[1] if len(category_hierarchy) > 1 else None
-            reviews = item.get('reviews', [])
-            # On stocke toutes les reviews dans un seul document
-            source = {
-                "category_hierarchy": category_hierarchy,
-                "category_main": category_main,
-                "name": item.get('name'),
-                "reviews": reviews
-            }
-            # On collecte tous les secondaryRatings au niveau top-level pour l'agrégation
-            secondary_ratings = []
-            for review in reviews:
-                if review and review.get('secondaryRatings'):
-                    secondary_ratings.extend(review['secondaryRatings'])
-            if secondary_ratings:
-                source["secondaryRatings"] = secondary_ratings
-            action = {
-                "_index": self.index_name,
-                "_source": source
-            }
-            actions.append(action)
-            if actions:
-                try:
-                    helpers.bulk(self.es, actions)
-                except Exception as e:
-                    spider.logger.error(f"Erreur lors de l'indexation sur Elasticsearch: {e}")
-            return item
+        actions = []
+        category_hierarchy = item.get('category_hierarchy', [])
+        category_main = category_hierarchy[1] if len(category_hierarchy) > 1 else None
+        reviews = item.get('reviews', [])
+        # On stocke toutes les reviews dans un seul document
+        source = {
+            "category_hierarchy": category_hierarchy,
+            "category_main": category_main,
+            "name": item.get('name'),
+            "description": item.get('description'),
+            "image_url": item.get('image_url'),
+            "price": item.get('price'),
+            "product_id": item.get('product_id'),
+            "commercial_message": item.get('commercial_message'),
+            "rating": item.get('rating'),
+            "review_count": item.get('review_count'),
+            "reviews": reviews
+        }
+        # On collecte tous les secondaryRatings au niveau top-level pour l'agrégation
+        secondary_ratings = []
+        for review in reviews:
+            if review and review.get('secondaryRatings'):
+                secondary_ratings.extend(review['secondaryRatings'])
+        if secondary_ratings:
+            source["secondaryRatings"] = secondary_ratings
+        action = {
+            "_index": self.index_name,
+            "_source": source
+        }
+        actions.append(action)
+        if actions:
+            try:
+                helpers.bulk(self.es, actions)
+            except Exception as e:
+                spider.logger.error(f"Erreur lors de l'indexation sur Elasticsearch: {e}")
+        return item
 
 class MongoDBPipeline:
     def __init__(self, mongo_uri, mongo_db, collection_name):

@@ -15,3 +15,4 @@ class IkeaProductItem(scrapy.Item):
     is_new = scrapy.Field()
     commercial_message = scrapy.Field()
     reviews = scrapy.Field()
+    sourceCountryCode = scrapy.Field()

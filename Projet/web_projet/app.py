@@ -100,7 +100,7 @@ def index():
 
     return render_template('index.html', categories=categories, message_types=message_types, data_counts=data_counts, combined_labels=combined_labels, combined_data_counts=combined_data_counts, reduction_labels=reduction_labels, reduction_data=reduction_data)
 
-# Page 2 : barres et camemberts
+# Page 2 : Nombre de reviews 
 @app.route('/page2')
 def page2():
     selected_first = request.args.get('first_category')
@@ -186,27 +186,6 @@ def page3():
     return render_template('page3.html', labels=labels, data=data)
 
 
-def get_secondary_rating_types():
-    try:
-        query = {
-            "size": 0,
-            "aggs": {
-                "ratings_nested": {
-                    "nested": {"path": "secondaryRatings"},
-                    "aggs": {
-                        "labels": {
-                            "terms": {"field": "secondaryRatings.label.keyword", "size": 100}
-                        }
-                    }
-                }
-            }
-        }
-        res = es.search(index="ikea_reviews", body=query)
-        return [bucket['key'] for bucket in res['aggregations']['ratings_nested']['labels']['buckets']]
-    except Exception as e:
-        print(f"Erreur lors de la récupération des types de secondary ratings: {e}")
-        return []
-
 
 # Page 5 : moyenne par type de secondary rating (tous produits confondus)
 @app.route('/page5')
@@ -232,7 +211,7 @@ def page5():
     data = []
     error_msg = None
     try:
-        res = es.search(index="ikea_reviews", body=query)
+        res = es.search(index="ikea_reviews", **query)
         buckets = res['aggregations']['ratings_nested']['labels']['buckets']
         print("Buckets bruts pour page5:", buckets)
         if not buckets:
@@ -245,10 +224,10 @@ def page5():
     except Exception as e:
         error_msg = f"Erreur Elasticsearch pour page5: {e}"
 
-    return render_template('page5.html', labels=labels, data=data, error_msg=error_msg)
+    return render_template('page4_non.html', labels=labels, data=data, error_msg=error_msg)
 
 #page4
-@app.route('/search_es', methods=['GET', 'POST'])
+@app.route('/page5', methods=['GET', 'POST'])
 def search_es():
     results = []
     query_word = ''
@@ -270,7 +249,7 @@ def search_es():
                 }
             }
             try:
-                es_res = es.search(index="ikea_reviews", body=es_query)
+                es_res = es.search(index="ikea_reviews", **es_query)
                 for hit in es_res['hits']['hits']:
                     doc = hit['_source']
                     for review in doc.get('reviews', []):
@@ -283,8 +262,102 @@ def search_es():
                             })
             except Exception as e:
                 print(f"Erreur Elasticsearch: {e}")
-    return render_template('search_es.html', results=results, query_word=query_word)
+    return render_template('page5.html', results=results, query_word=query_word)
 
+
+# Page 6: Recherche de produit par nom et répartition des ratings
+@app.route('/page4')
+def page4():
+    product_name = request.args.get('product_name', '').strip()
+    
+    rating_labels = []
+    rating_data = []
+    total_reviews = 0
+    product_count = 0
+    error_message = None
+    secondary_ratings_data = {}
+    
+    if product_name:
+        try:
+            # Recherche des produits par nom dans Elasticsearch
+            query = {
+                "size": 1000,  # Récupérer tous les produits correspondants
+                "query": {
+                    "match": {
+                        "name": {
+                            "query": product_name,
+                            "operator": "and"
+                        }
+                    }
+                }
+            }
+            
+            res = es.search(index="ikea_reviews", **query)
+            hits = res.get('hits', {}).get('hits', [])
+            
+            if hits:
+                product_count = len(hits)
+                rating_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+                secondary_ratings_counts = {}
+                
+                # Parcourir tous les produits trouvés
+                for hit in hits:
+                    source = hit.get('_source', {})
+                    reviews = source.get('reviews', [])
+                    
+                    # Compter les ratings de chaque review
+                    for review in reviews:
+                        if review and review.get('primaryRating'):
+                            rating_value = review['primaryRating'].get('ratingValue')
+                            if rating_value:
+                                # Arrondir le rating à l'entier le plus proche
+                                rounded_rating = round(rating_value)
+                                if 1 <= rounded_rating <= 5:
+                                    rating_counts[rounded_rating] += 1
+                                    total_reviews += 1
+                        
+                        # Compter les secondaryRatings
+                        if review and review.get('secondaryRatings'):
+                            for sec_rating in review['secondaryRatings']:
+                                label = sec_rating.get('label')
+                                rating_value = sec_rating.get('ratingValue')
+                                if label and rating_value:
+                                    if label not in secondary_ratings_counts:
+                                        secondary_ratings_counts[label] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+                                    rounded_rating = round(rating_value)
+                                    if 1 <= rounded_rating <= 5:
+                                        secondary_ratings_counts[label][rounded_rating] += 1
+                
+                if total_reviews > 0:
+                    # Préparer les données pour le graphique primary
+                    rating_labels = ['1 étoile', '2 étoiles', '3 étoiles', '4 étoiles', '5 étoiles']
+                    rating_data = [rating_counts[1], rating_counts[2], rating_counts[3], 
+                                   rating_counts[4], rating_counts[5]]
+                    
+                    # Préparer les données pour les graphiques secondaryRatings
+                    for label, counts in secondary_ratings_counts.items():
+                        secondary_ratings_data[label] = {
+                            'labels': rating_labels,
+                            'data': [counts[1], counts[2], counts[3], counts[4], counts[5]],
+                            'total': sum(counts.values())
+                        }
+                else:
+                    error_message = f"Aucune review trouvée pour le produit '{product_name}'."
+            else:
+                error_message = f"Aucun produit trouvé avec le nom '{product_name}'."
+        
+        except Exception as e:
+            error_message = f"Erreur lors de la recherche: {str(e)}"
+            print(f"Erreur Elasticsearch: {e}")
+    
+    return render_template('page4.html', 
+                          product_name=product_name,
+                          rating_labels=rating_labels,
+                          rating_data=rating_data,
+                          total_reviews=total_reviews,
+                          product_count=product_count,
+                          error_message=error_message,
+                          secondary_ratings_data=secondary_ratings_data)
 
 
 if __name__ == '__main__':

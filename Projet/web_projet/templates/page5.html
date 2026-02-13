@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Ikea - Page 5</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Recherche dans les commentaires (Elasticsearch)</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -31,13 +30,14 @@
         h1, h2, h3 {
             color: #00bcd4;
         }
-        .chart-container {
-            width: 80%;
-            margin: auto;
+        .table {
             background: #22242a;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            color: #e0e0e0;
+        }
+        .form-control {
+            background: #22242a;
+            color: #e0e0e0;
+            border: 1px solid #444;
         }
         .btn-primary {
             background: #00bcd4;
@@ -51,9 +51,6 @@
             color: #ffeb3b;
             border: none;
         }
-        hr {
-            border-color: #444;
-        }
     </style>
 </head>
 <body>
@@ -65,60 +62,43 @@
                 <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
                 <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
                 <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
-                <li class="nav-item active"><a class="nav-link" href="/page5">Ranking moyen secondary</a></li>
-                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page6">Recherche Produit</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/search_es">Commentaires</a></li>
             </ul>
         </div>
     </nav>
-
     <div class="container mt-4">
-        <h1 class="text-center">Ranking moyen par type de secondary rating</h1>
-        <div class="chart-container">
-            <canvas id="secondaryAvgChart"></canvas>
-        </div>
+        <h1 class="text-center">Recherche d'un mot dans les commentaires (Elasticsearch)</h1>
+        <form method="post" class="mb-4">
+            <div class="form-group">
+                <label for="query_word">Mot à rechercher :</label>
+                <input type="text" class="form-control" id="query_word" name="query_word" value="{{ query_word }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Rechercher</button>
+        </form>
+        {% if results %}
+        <h2>Résultats :</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr><th>Produit</th><th>Catégorie</th><th>Commentaire</th></tr>
+            </thead>
+            <tbody>
+                {% for res in results %}
+                <tr>
+                    <td>{{ res.product }}</td>
+                    <td>{{ res.category }}</td>
+                    <td>{{ res.comment }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
-            <h5>Comment interpréter ce graphique&nbsp;?</h5>
-            <p>Ce graphique présente la moyenne des notes secondaires attribuées aux produits par type d'évaluation (ex : qualité, rapport qualité/prix, etc). Plus la barre est haute, plus la perception de ce critère est positive pour la catégorie concernée. Utilisez-le pour comparer les points forts et faibles perçus par les clients selon les critères secondaires.</p>
+            <h5>Comment interpréter ces résultats&nbsp;?</h5>
+            <p>Ce tableau affiche les commentaires clients contenant le mot recherché, avec le produit et la catégorie associés. Utilisez-le pour explorer les avis clients sur un sujet précis et identifier les tendances ou problèmes récurrents.</p>
         </div>
-        {% if error_msg %}
-        <div class="alert alert-warning mt-4 text-center">
-            {{ error_msg }}
-        </div>
+        {% elif query_word %}
+        <div class="alert alert-warning">Aucun résultat trouvé pour "{{ query_word }}".</div>
         {% endif %}
-        <!-- plus de lien retour, tout est dans la barre de navigation -->
     </div>
-
-    <script>
-        const ctx = document.getElementById('secondaryAvgChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {{ labels|tojson }},
-                datasets: [{
-                    label: 'Ranking moyen (sur 5)',
-                    data: {{ data|tojson }},
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 5
-                    }
-                },
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    title: {
-                        display: true,
-                        text: 'Ranking moyen global par secondary rating'
-                    }
-                }
-            }
-        });
-    </script>
 </body>
 </html>

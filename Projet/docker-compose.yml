@@ -60,8 +60,10 @@ services:
       - MONGO_URI=mongodb://mongodb:27017/
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
-      - mongodb
-      - elasticsearch
+      mongodb:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
     networks:
       - data_network
 

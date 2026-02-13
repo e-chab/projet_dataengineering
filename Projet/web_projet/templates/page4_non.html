@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Ikea - Page 5</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #181a1b;
+            color: #e0e0e0;
+        }
+        .navbar {
+            background: #23272f !important;
+        }
+        .navbar .navbar-brand, .navbar .nav-link {
+            color: #e0e0e0 !important;
+        }
+        .navbar .nav-link.active, .navbar .nav-link:hover {
+            color: #00bcd4 !important;
+        }
+        .container {
+            background: #23272f;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            padding: 32px 24px;
+            margin-top: 32px;
+        }
+        h1, h2, h3 {
+            color: #00bcd4;
+        }
+        .chart-container {
+            width: 80%;
+            margin: auto;
+            background: #22242a;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .btn-primary {
+            background: #00bcd4;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #0097a7;
+        }
+        .alert-warning {
+            background: #33353b;
+            color: #ffeb3b;
+            border: none;
+        }
+        hr {
+            border-color: #444;
+        }
+        .product-card {
+            background: #22242a;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .product-card img {
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+        }
+        .product-info {
+            margin-top: 16px;
+        }
+        .badge-reviews {
+            background: #00bcd4;
+            color: #181a1b;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .form-inline input::placeholder {
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Dashboard Ikea</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/page5">Ranking moyen secondary</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page6">Recherche Produit</a></li>
+        
+        <!-- Section du meuble le plus vendu -->
+        {% if best_seller %}
+        <hr class="my-5">
+        <div class="product-card">
+            <h2 class="text-center mb-4">🏆 Meuble le plus vendu pour "{{ search_name }}"</h2>
+            <div class="row">
+                <div class="col-md-5 text-center">
+                    {% if best_seller.image_url %}
+                    <a href="{{ best_seller.url }}" target="_blank">
+                        <img src="{{ best_seller.image_url }}" alt="{{ best_seller.name }}" class="img-fluid">
+                    </a>
+                    {% else %}
+                    <div style="background:#33353b; padding:60px; border-radius:8px;">
+                        <p style="color:#888;">Image non disponible</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-7">
+                    <div class="product-info">
+                        <h3>{{ best_seller.name }}</h3>
+                        <p class="mt-3" style="font-size:1.1em; line-height:1.6;">{{ best_seller.description }}</p>
+                        <div class="mt-4">
+                            <span class="badge-reviews">{{ best_seller.review_count }} avis</span>
+                            {% if best_seller.rating > 0 %}
+                            <span style="color:#ffeb3b; font-size:1.2em; margin-left:12px;">
+                                ⭐ {{ "%.1f"|format(best_seller.rating) }}/5
+                            </span>
+                            {% endif %}
+                            {% if best_seller.price > 0 %}
+                            <span style="color:#4caf50; font-size:1.3em; font-weight:bold; margin-left:12px;">
+                                {{ "%.2f"|format(best_seller.price) }} €
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% if best_seller.url %}
+                        <div class="mt-4">
+                            <a href="{{ best_seller.url }}" target="_blank" class="btn btn-primary btn-lg">
+                                Voir le produit sur IKEA ➜
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif search_error %}
+        <hr class="my-5">
+        <div class="alert alert-warning text-center">
+            {{ search_error }}
+        </div>
+        {% elif search_name %}
+        <hr class="my-5">
+        <div class="alert alert-warning text-center">
+            Recherche en cours pour "{{ search_name }}"...
+        </div>
+        {% endif %}
+        
+                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
+            </ul>
+            <!-- Formulaire de recherche dans la navbar -->
+            <form class="form-inline my-2 my-lg-0" method="get" action="/page5">
+                <input class="form-control mr-sm-2" type="search" name="search_name" placeholder="Rechercher un meuble" 
+                       aria-label="Search" value="{{ search_name or '' }}" style="background:#1a1c1d; color:#e0e0e0; border:1px solid #444;">
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Rechercher</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-center">Ranking moyen par type de secondary rating</h1>
+        <div class="chart-container">
+            <canvas id="secondaryAvgChart"></canvas>
+        </div>
+        <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
+            <h5>Comment interpréter ce graphique&nbsp;?</h5>
+            <p>Ce graphique présente la moyenne des notes secondaires attribuées aux produits par type d'évaluation (ex : qualité, rapport qualité/prix, etc). Plus la barre est haute, plus la perception de ce critère est positive pour la catégorie concernée. Utilisez-le pour comparer les points forts et faibles perçus par les clients selon les critères secondaires.</p>
+        </div>
+        {% if error_msg %}
+        <div class="alert alert-warning mt-4 text-center">
+            {{ error_msg }}
+        </div>
+        {% endif %}
+        <!-- plus de lien retour, tout est dans la barre de navigation -->
+    </div>
+
+    <script>
+        const ctx = document.getElementById('secondaryAvgChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ labels|tojson }},
+                datasets: [{
+                    label: 'Ranking moyen (sur 5)',
+                    data: {{ data|tojson }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Ranking moyen global par secondary rating'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

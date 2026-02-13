@@ -173,8 +173,19 @@ class IkeaSpider(scrapy.Spider):
         else:
             item['price'] = 0.0
 
-        # URL de l'image principale
-        item['image_url'] = response.css('div.pip-media-grid__media-container img::attr(src)').get()
+        # URL de l'image principale - première image de la galerie produit
+        # Cherche d'abord dans la galerie avec le thumbnail actif
+        image_url = response.css('div.pipf-product-gallery__thumbnail--active img::attr(src)').get()
+        
+        # Si la galerie n'existe pas, on essaie d'autres sélecteurs
+        if not image_url:
+            image_url = response.css('div.pipf-product-gallery__media--active img::attr(src)').get()
+        
+        # Fallback sur l'ancien sélecteur si nécessaire
+        if not image_url:
+            image_url = response.css('div.pip-media-grid__media-container img::attr(src)').get()
+        
+        item['image_url'] = image_url
 
         # Évaluation (Rating)
         rating_text = response.css('.pipf-rating .pipf-rating__stars::attr(aria-label)').get()
