@@ -1,6 +1,6 @@
 # Projet Data Engineering
 
-Ce projet est une solution complète de data engineering comprenant un module de scraping, une API web, et une orchestration via Docker Compose. Il permet de collecter, traiter et visualiser des données, notamment à partir du site IKEA France.
+Ce projet est une solution complète de data engineering comprenant un module de scraping, une API web, et une orchestration via Docker Compose. Il permet de collecter, traiter et visualiser des données scrapées à partir du site IKEA France.
 
 ## Technologies utilisées et justification
 
@@ -51,48 +51,47 @@ Cette architecture permet une collecte, un enrichissement et une exploitation de
 ```
 Projet/
 ├── docker-compose.yml           # Orchestration des services avec Docker
-├── labels_query.json            # Fichier de configuration des labels
-├── query.json                   # Fichier de requêtes
 ├── test_categories.py           # Script de test des catégories
+├── start_dashboard.bat          # Script batch de lancement rapide
 ├── scraping_projet/             # Module de scraping (Scrapy)
 │   ├── Dockerfile               # Image Docker pour le scraping
 │   ├── requirements.txt         # Dépendances Python pour le scraping
 │   ├── scrapy.cfg               # Configuration Scrapy
-│   ├── test_reviews_api.py      # Tests API de reviews
-│   ├── test_reviews_id_detect.py# Tests d'identification de reviews
 │   └── scraping_projet/         # Code source Scrapy
+│       ├── __init__.py
 │       ├── items.py             # Définition des items Scrapy
 │       ├── middlewares.py       # Middlewares Scrapy
 │       ├── pipelines.py         # Pipelines de traitement
 │       ├── settings.py          # Paramètres Scrapy
 │       └── spiders/             # Spiders Scrapy
-│           ├── ikea_retriever.py# Spider IKEA
-│           └── ikea_stores.py   # Spider IKEA stores
+│           └── ikea_retriever.py# Spider IKEA principal
 ├── web_projet/                  # Application web (Flask)
 │   ├── app.py                   # Application principale Flask
 │   ├── Dockerfile               # Image Docker pour l'app web
 │   ├── requirements.txt         # Dépendances Python pour l'app web
-│   ├── es_show_example.py       # Exemple d'affichage ES
+│   ├── static/                  # Images statiques (captures d'écran, etc.)
+│   │   ├── page1.PNG
+│   │   ├── page2.PNG
+│   │   ├── page3.PNG
+│   │   ├── page4.PNG
+│   │   └── page5.PNG
 │   └── templates/               # Templates HTML (Jinja2)
-│       ├── dashboard.html
-│       ├── index.html
-│       ├── page2.html
-│       ├── page3.html
-│       ├── page5.html
-│       ├── search_es.html
-│       └── stats.html
+│       ├── page0.html           # Présentation
+│       ├── page1.html           # Messages commerciaux
+│       ├── page2.html           # Nombre de commentaires
+│       ├── page3.html           # Notes des commentaires
+│       ├── page4.html           # Gamme de produit
+│       └── page5.html           # Commentaires
 ```
 
-## Fonctionnalités principales
-
-- **Scraping de données** : Extraction automatisée de données produits et avis depuis des sites web (ex : IKEA) via Scrapy.
-- **API et Dashboard Web** : Application Flask pour visualiser, rechercher et analyser les données collectées.
-- **Orchestration Docker** : Déploiement et gestion des services via Docker Compose pour une portabilité et une reproductibilité optimales.
 
 ## Prérequis
 
-- [Docker](https://www.docker.com/) et [Docker Compose](https://docs.docker.com/compose/)
-- Python 3.8+
+- Docker Desktop pour [Docker](https://www.docker.com/) et [Docker Compose](https://docs.docker.com/compose/)
+- Python 3.8+ (uniquement si vous souhaitez lancer les scripts en dehors de Docker)
+
+> Toutes les autres dépendances (Python, Scrapy, Flask, MongoDB, Elasticsearch, etc.) sont automatiquement installées dans les conteneurs Docker respectifs lors du build. Aucune installation manuelle supplémentaire n'est requise sur votre machine.
+
 
 ## Installation & Lancement
 
@@ -108,24 +107,6 @@ Projet/
 3. **Accéder à l'application web**
    - Ouvrir un navigateur à l'adresse : http://localhost:5000
 
-## Utilisation
-
-- Lancer les spiders Scrapy pour collecter les données :
-  ```bash
-  cd scraping_projet
-  scrapy crawl ikea_retriever
-  ```
-- L'application web permet de visualiser les données, effectuer des recherches et afficher des statistiques.
-
-## Tests
-
-Des scripts de test sont disponibles dans `scraping_projet/` pour valider le scraping et l'intégration des données.
-
 ## Auteurs
 
-- Votre nom
-- Collaborateurs éventuels
-
-## Licence
-
-Ce projet est sous licence MIT.
+Elise Chabrerie

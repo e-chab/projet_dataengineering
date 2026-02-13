@@ -6,6 +6,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+                .page-img {
+                    width: 100% !important;
+                    height: 350px !important;
+                    object-fit: fill !important;
+                    border-radius: 12px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                }
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
@@ -54,17 +61,38 @@
         <a class="navbar-brand" href="/">Dashboard Ikea</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page0">Présentation</a></li>
                 <li class="nav-item active"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page6">Recherche Produit</a></li>
-                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Notes des commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page4">Gamme de produit</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page5">Commentaires</a></li>
             </ul>
         </div>
     </nav>
     <div class="container mt-4">
         <h1>Statistiques des messages commerciaux par catégorie</h1>
+        <div class="row mb-4">
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <img src="{{ url_for('static', filename='page1.PNG') }}" alt="Page 1" class="page-img">
+            </div>
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <img src="{{ url_for('static', filename='page2.PNG') }}" alt="Page 2" class="page-img">
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <img src="{{ url_for('static', filename='page3.PNG') }}" alt="Page 3" class="page-img">
+            </div>
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <img src="{{ url_for('static', filename='page4.PNG') }}" alt="Page 4" class="page-img">
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-12 d-flex align-items-center justify-content-center">
+                <img src="{{ url_for('static', filename='page5.PNG') }}" alt="Page 5" class="page-img">
+            </div>
+        </div>
         <div id="chart-container">
             <canvas id="barChart"></canvas>
                 <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
@@ -74,7 +102,7 @@
         </div>
         <div id="pie-chart-container" style="width: 50vw; max-width: 450px; margin: 40px auto;">
             <canvas id="pieChart"></canvas>
-            <div class="mt-4" style="background:#22242a; border-radius:10px; padding:18px; color:#b0b0b0;">
+            <div class="mt-4" style="background:#22242a; border-radius:12px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.3); color:#b0b0b0;">
                 <h5>Comment interpréter ce graphique&nbsp;?</h5>
                 <p>Ce camembert montre la répartition des différents pourcentages de promotions appliquées aux produits. Il permet de visualiser quelles remises sont les plus fréquentes et d’identifier les stratégies de réduction privilégiées par catégorie ou globalement.</p>
             </div>
@@ -90,10 +118,28 @@
         const reduction_labels = {{ reduction_labels|tojson }};
         const reduction_data = {{ reduction_data|tojson }};
 
-        // Génère une couleur aléatoire pastel
+        // Génère une couleur aléatoire (en rgba avec opacité faible)
         function randomColor() {
+            // Génère une couleur vive et brillante en HSL puis convertit en RGB avec opacité 0.7
             const hue = Math.floor(Math.random() * 360);
-            return `hsl(${hue}, 70%, 70%)`;
+            const sat = 90 + Math.floor(Math.random() * 10); // saturation élevée
+            const light = 55 + Math.floor(Math.random() * 10); // luminosité élevée
+            // Conversion HSL -> RGB
+            function hslToRgb(h, s, l) {
+                s /= 100; l /= 100;
+                let c = (1 - Math.abs(2 * l - 1)) * s,
+                    x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+                    m = l - c/2, r=0, g=0, b=0;
+                if (0 <= h && h < 60) { r = c; g = x; b = 0; }
+                else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
+                else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+                else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+                else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+                else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+                return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+            }
+            const [r, g, b] = hslToRgb(hue, sat, light);
+            return `rgba(${r}, ${g}, ${b}, 0.7)`;
         }
 
         // Associe chaque message à une couleur unique
@@ -110,51 +156,19 @@
 
         // Fonction pour mélanger deux couleurs (moyenne RGB)
         function mixColors(color1, color2) {
-            function hslToRgb(h, s, l) {
-                s /= 100; l /= 100;
-                let c = (1 - Math.abs(2 * l - 1)) * s,
-                    x = c * (1 - Math.abs((h / 60) % 2 - 1)),
-                    m = l - c/2, r=0, g=0, b=0;
-                if (0 <= h && h < 60) { r = c; g = x; b = 0; }
-                else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
-                else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
-                else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
-                else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
-                else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
-                return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
+            // Mélange deux couleurs rgba (moyenne RGB, opacité 0.7)
+            function parseRGBA(rgba) {
+                const [r, g, b] = rgba.match(/\d+/g).map(Number);
+                return [r, g, b];
             }
-            function rgbToHsl(r, g, b) {
-                r /= 255; g /= 255; b /= 255;
-                let max = Math.max(r, g, b), min = Math.min(r, g, b);
-                let h, s, l = (max + min) / 2;
-                if (max === min) { h = s = 0; }
-                else {
-                    let d = max - min;
-                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                    switch (max) {
-                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                        case g: h = (b - r) / d + 2; break;
-                        case b: h = (r - g) / d + 4; break;
-                    }
-                    h *= 60;
-                }
-                return [h, s * 100, l * 100];
-            }
-            // Parse hsl string
-            function parseHSL(hsl) {
-                const [h, s, l] = hsl.match(/\d+/g).map(Number);
-                return [h, s, l];
-            }
-            const rgb1 = hslToRgb(...parseHSL(color1));
-            const rgb2 = hslToRgb(...parseHSL(color2));
+            const rgb1 = parseRGBA(color1);
+            const rgb2 = parseRGBA(color2);
             const avg = [
                 Math.round((rgb1[0] + rgb2[0]) / 2),
                 Math.round((rgb1[1] + rgb2[1]) / 2),
                 Math.round((rgb1[2] + rgb2[2]) / 2)
             ];
-            // Convert back to hsl for pastel effect
-            const [h, s, l] = rgbToHsl(...avg);
-            return `hsl(${Math.round(h)}, 70%, 70%)`;
+            return `rgba(${avg[0]}, ${avg[1]}, ${avg[2]}, 0.7)`;
         }
 
         // Prépare les datasets

@@ -52,18 +52,100 @@
         <a class="navbar-brand" href="/">Dashboard Ikea</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/page0">Présentation</a></li>
                 <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page6">Recherche Produit</a></li>
-                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Notes des commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page4">Gamme de produit</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page5">Commentaires</a></li>
             </ul>
         </div>
     </nav>
     <div class="container text-center">
         <div class="dashboard-title">Dashboard Ikea</div>
         <div class="dashboard-author">réalisé par Elise Chabrerie</div>
+
+        <div class="row mt-5 mb-4">
+            <!-- Ici vous pourrez insérer des captures d'écran illustrant les fonctionnalités de chaque page du dashboard -->
+        </div>
+
+        <h3 class="mb-4" style="color:#00bcd4;">Fonctionnalités du dashboard</h3>
+        <div class="row text-left justify-content-center">
+            <div class="col-md-10">
+                <ul class="list-group list-group-flush" style="background:transparent;">
+                    <li class="list-group-item" style="background:transparent; color:#e0e0e0;">
+                        <b>Présentation</b> : Cette page d'accueil présente le projet, l'équipe projet et donne accès à toutes les analyses du dashboard.
+                    </li>
+                    <li class="list-group-item" style="background:transparent; color:#e0e0e0;">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <b>Messages commerciaux</b> :
+                                <br>Le site ikéa peut proposer des offres, markétisées par des messages positionnés à différents endroits stratégiques de la page produit. Cette page affiche la répartition de ces messages marketing par catégorie de produits.
+                                <br><i>Utilité :</i> Comprendre la stratégie commerciale d'IKEA selon les familles de produits et repérer les catégories les plus ciblées par les promotions.
+                                <br><i>Modalités :</i> Les graphiques permettent de visualiser la fréquence et la nature des messages pour chaque catégorie.<br>
+                                <span style="color:#00bcd4;">Pour les produits ayant une double catégorie (ex : <b>Nouveau & Prix le plus bas</b>), la couleur de la barre est un mélange des couleurs des deux catégories concernées.</span>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <img src="{{ url_for('static', filename='page1.PNG') }}" alt="Messages commerciaux" class="img-fluid rounded shadow" style="max-height:120px;">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item" style="background:transparent; color:#e0e0e0;">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <b>Nombre de commentaires</b> :
+                                <br>Cette page permet de comparer le volume d'avis clients selon les catégories ainsi que les sous-catégories de ces catégories.
+                                <br><i>Utilité :</i> Repérer les catégories qui génèrent le plus d'engagement client et les produits les plus commentés. Cela donne ainsi aussi une idée des catégories de produits les plus achetés.
+                                <br><i>Modalités :</i> Visualisation des volumes de commentaires par catégories principales et visualisation dynamique des volumes de commentaires par sous-catégorie.
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <img src="{{ url_for('static', filename='page2.PNG') }}" alt="Nombre de commentaires" class="img-fluid rounded shadow" style="max-height:120px;">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item" style="background:transparent; color:#e0e0e0;">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <b>Notes des commentaires</b> :
+                                <br>Les produits ikéa sont répartis en plusieurs catégories de produits distinctes ("Epicerie suédoise", "Rangements", etc). Cette paeg permet d'analyser la note moyenne des produits par catégorie principale.
+                                <br><i>Utilité :</i> Identifier les catégories les mieux notées et celles à améliorer selon la satisfaction client.
+                                <br><i>Modalités :</i> Un graphique à barres présente la note moyenne sur 5 pour chaque catégorie principale.
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <img src="{{ url_for('static', filename='page3.PNG') }}" alt="Notes des commentaires" class="img-fluid rounded shadow" style="max-height:120px;">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item" style="background:transparent; color:#e0e0e0;">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <b>Gamme de produit</b> :
+                                <br>Cette page permet de rechercher un produit par son nom (ie. le nom de sa gamme) et de visualier la répartition des notes principales ainsi que des notes sur des critères secondaires (qualité, prix, etc). Elle permet aussi de mettre en avant le produit leplus apprécié de la gamme recherchée.
+                                <br><i>Utilité :</i> Explorer en détail la perception client d'une gamme de produits précise et ses points forts/faibles.
+                                <br><i>Modalités :</i> Saisie du nom du produit, affichage de la répartition des notes principales et secondaires sous forme de graphiques, affichage du produit le plus apprécié de la gamme.
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <img src="{{ url_for('static', filename='page4.PNG') }}" alt="Gamme de produit" class="img-fluid rounded shadow" style="max-height:120px;">
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item" style="background:transparent; color:#e0e0e0;">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <b>Commentaires</b> :
+                                <br>Cette page permet d'explorer les avis clients détaillés et de filtrer par mot-clé pour mieux comprendre les retours utilisateurs.
+                                <br><i>Utilité :</i> Identifier les thèmes récurrents, les champs lexicaux récurents, les points d'amélioration ou les atouts perçus par les clients.
+                                <br><i>Modalités :</i> Recherche par mot-clé, affichage des commentaires associés avec le produit et la catégorie.
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <img src="{{ url_for('static', filename='page5.PNG') }}" alt="Commentaires" class="img-fluid rounded shadow" style="max-height:120px;">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <div class="mt-5">
             <a href="/page1" class="btn btn-primary btn-lg">Accéder aux statistiques</a>
         </div>

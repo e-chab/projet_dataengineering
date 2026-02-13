@@ -86,12 +86,12 @@
         <a class="navbar-brand" href="/">Dashboard Ikea</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page0">Présentation</a></li>
                 <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
-                <li class="nav-item active"><a class="nav-link" href="/page6">Recherche Produit</a></li>
-                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page2">Nombre de commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Notes des commentaires</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/page4">Gamme de produit</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page5">Commentaires</a></li>
             </ul>
         </div>
     </nav>
@@ -100,7 +100,7 @@
         <h1 class="text-center">Recherche de Produit - Répartition des Rankings</h1>
         
         <div class="search-form">
-            <form method="get" action="/page6" class="text-center">
+            <form method="get" action="/page4" class="text-center">
                 <input type="text" name="product_name" placeholder="Entrez le nom du produit (ex: BILLY)" 
                        value="{{ product_name or '' }}" required>
                 <button type="submit">Rechercher</button>
@@ -124,12 +124,19 @@
                 
                 {% if secondary_ratings_data %}
                     <h3 class="text-center mt-5" style="color: #00bcd4;">Secondary Ratings</h3>
-                    {% for label, data in secondary_ratings_data.items() %}
-                        <div class="chart-container mt-4">
-                            <h4 class="text-center" style="color: #e0e0e0;">{{ label }} ({{ data.total }} reviews)</h4>
-                            <canvas id="secondaryChart_{{ loop.index }}"></canvas>
-                        </div>
-                    {% endfor %}
+                    <div class="row">
+                        {% for label, data in secondary_ratings_data.items() %}
+                            <div class="col-md-6">
+                                <div class="chart-container mt-4">
+                                    <h4 class="text-center" style="color: #e0e0e0;">{{ label }} ({{ data.total }} reviews)</h4>
+                                    <canvas id="secondaryChart_{{ loop.index }}"></canvas>
+                                </div>
+                            </div>
+                            {% if loop.index is divisibleby 2 and not loop.last %}
+                                </div><div class="row">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 {% endif %}
                 
                 <div class="info-box">
@@ -222,68 +229,53 @@
         {% for label, data in secondary_ratings_data.items() %}
         const ctx{{ loop.index }} = document.getElementById('secondaryChart_{{ loop.index }}').getContext('2d');
         new Chart(ctx{{ loop.index }}, {
-            type: 'bar',
+            type: 'radar',
             data: {
                 labels: {{ data.labels | tojson }},
                 datasets: [{
-                    label: 'Nombre de reviews',
+                    label: 'Score moyen',
                     data: {{ data.data | tojson }},
-                    backgroundColor: [
-                        'rgba(244, 67, 54, 0.7)',
-                        'rgba(255, 152, 0, 0.7)',
-                        'rgba(255, 235, 59, 0.7)',
-                        'rgba(139, 195, 74, 0.7)',
-                        'rgba(76, 175, 80, 0.7)'
-                    ],
-                    borderColor: [
+                    backgroundColor: 'rgba(0, 188, 212, 0.2)',
+                    borderColor: 'rgba(0, 188, 212, 1)',
+                    pointBackgroundColor: [
                         'rgba(244, 67, 54, 1)',
                         'rgba(255, 152, 0, 1)',
                         'rgba(255, 235, 59, 1)',
                         'rgba(139, 195, 74, 1)',
                         'rgba(76, 175, 80, 1)'
                     ],
-                    borderWidth: 2
+                    pointRadius: 6,
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 scales: {
-                    y: {
-                        beginAtZero: true,
+                    r: {
+                        angleLines: { color: 'rgba(255,255,255,0.1)' },
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        pointLabels: { color: '#e0e0e0', font: { size: 14 } },
                         ticks: {
                             color: '#e0e0e0',
-                            stepSize: 1
+                            stepSize: 1,
+                            backdropColor: 'rgba(0,0,0,0)'
                         },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            color: '#e0e0e0'
-                        },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        }
+                        min: 0
                     }
                 },
                 plugins: {
                     legend: {
                         labels: {
                             color: '#e0e0e0',
-                            font: {
-                                size: 14
-                            }
+                            font: { size: 14 }
                         }
                     },
                     title: {
                         display: true,
                         text: '{{ label }}',
                         color: '#00bcd4',
-                        font: {
-                            size: 16
-                        }
+                        font: { size: 16 }
                     }
                 }
             }
@@ -296,11 +288,12 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Section du meuble avec le meilleur ratio ranking/nombre de ranking -->
+
+    <!-- Section du meuble avec le meilleur score pondéré -->
     {% if best_seller %}
     <hr class="my-5">
     <div class="container product-card" style="background:#22242a; border-radius:12px; padding:24px; margin-top:32px; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
-        <h2 class="text-center mb-4">🏆 Meilleur ratio note/nombre d'avis pour "{{ product_name }}"</h2>
+        <h2 class="text-center mb-4">🏆 Meilleur score pondéré pour la gamme de produits "{{ product_name }}"</h2>
         <div class="row">
             <div class="col-md-5 text-center">
                 {% if best_seller.image_url %}
@@ -341,8 +334,8 @@
             </div>
         </div>
         <div class="info-box mt-4">
-            <h5>Comment interpréter ce ratio&nbsp;?</h5>
-            <p>Le ratio <b>note/nombre d'avis</b> met en avant les produits qui obtiennent une bonne note moyenne même avec peu d'avis. Un ratio élevé peut indiquer un produit très apprécié par ses acheteurs, mais il faut rester prudent si le nombre d'avis est faible (risque de biais). À l'inverse, un ratio plus faible peut concerner un produit populaire mais avec des avis plus mitigés. Utilisez ce ratio pour repérer les "coups de cœur" ou les produits à la fois bien notés et souvent évalués.</p>
+            <h5>Comment interpréter ce score&nbsp;?</h5>
+            <p>Le <b>score pondéré</b> (note × log(1 + nombre d'avis)) met en avant les produits qui obtiennent une bonne note moyenne tout en ayant un nombre d'avis conséquent. Cela permet de valoriser les produits à la fois populaires et bien notés, en limitant l'effet des produits avec peu d'avis. Plus le score est élevé, plus le produit est fiable et apprécié par un grand nombre de clients.</p>
         </div>
     </div>
     {% elif search_error %}

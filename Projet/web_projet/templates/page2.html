@@ -60,12 +60,12 @@
         <a class="navbar-brand" href="/">Dashboard Ikea</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Présentation</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page0">Présentation</a></li>
                 <li class="nav-item"><a class="nav-link" href="/page1">Messages commerciaux</a></li>
-                <li class="nav-item active"><a class="nav-link" href="/page2">Nombre de reviews</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page3">Ranking</a></li>
-                <li class="nav-item"><a class="nav-link" href="/page6">Recherche Produit</a></li>
-                <li class="nav-item"><a class="nav-link" href="/search_es">Commentaires</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/page2">Nombre de commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page3">Notes des commentaires</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page4">Gamme de produit</a></li>
+                <li class="nav-item"><a class="nav-link" href="/page5">Commentaires</a></li>
             </ul>
         </div>
     </nav>
@@ -141,14 +141,16 @@
     </div>
         <!-- Section : Comment interpréter ces graphiques -->
         <div class="mt-4" style="background:#23272f; border-radius:10px; padding:18px; color:#b0b0b0;">
-            <h5>Comment interpréter ces graphiques&nbsp;?</h5>
-            <ul>
-                <li>Chaque camembert représente la répartition des produits ou des reviews selon la catégorie sélectionnée.</li>
-                <li>Un secteur plus large indique une sous-catégorie (ou sous-sous-catégorie) plus représentée ou plus commentée.</li>
-                <li>Comparez la taille des secteurs pour identifier les catégories dominantes ou sous-représentées.</li>
-                <li>Utilisez la sélection pour explorer la granularité des données par niveau de catégorie.</li>
-            </ul>
-            <p class="mb-0">Ces graphiques permettent de visualiser rapidement la diversité et la popularité des produits ainsi que l’engagement des clients par catégorie.</p>
+            <div style="background:#22242a; border-radius:12px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.3); color:#b0b0b0;">
+                <h5>Comment interpréter ces graphiques&nbsp;?</h5>
+                <ul>
+                    <li>Chaque camembert représente la répartition des produits ou des reviews selon la catégorie sélectionnée.</li>
+                    <li>Un secteur plus large indique une sous-catégorie (ou sous-sous-catégorie) plus représentée ou plus commentée.</li>
+                    <li>Comparez la taille des secteurs pour identifier les catégories dominantes ou sous-représentées.</li>
+                    <li>Utilisez la sélection pour explorer la granularité des données par niveau de catégorie.</li>
+                </ul>
+                <p class="mb-0">Ces graphiques permettent de visualiser rapidement la diversité et la popularité des produits ainsi que l’engagement des clients par catégorie.</p>
+            </div>
         </div>
     <style>
         body { font-family: sans-serif; margin: 40px; }
